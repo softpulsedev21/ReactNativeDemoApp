@@ -64,7 +64,32 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 16,
         fontWeight: fontWeights.bold
-    }
+    },
+    tableContainer: {
+        borderWidth: 1,
+        borderColor: 'black',
+        marginVertical: 10,
+        width:'90%',
+        marginTop:50
+      },
+      tableCaption: {
+        fontWeight: 'bold',
+        fontSize: 16,
+        textAlign: 'center',
+        padding: 10,
+      },
+      tableRow: {
+        flexDirection: 'row',
+      },
+      tableHeader: {
+        // flex: 1,
+        fontWeight: 'bold',
+        padding: 10,
+      },
+      tableCell: {
+        // flex: 1,
+        padding: 10,
+      },
 });
 
 export { colors, fontSizes, fontWeights, styles };

@@ -23,8 +23,6 @@ const typeDefs = gql`
   }
 `;
 
-// In-memory data
-// let users = [];
 
 // Define your GraphQL resolvers
 const resolvers = {
@@ -32,8 +30,14 @@ const resolvers = {
     getUser: (_, { id }) => {
       return User.find(user => user.id === id);
     },
-    getAllUsers: () => {
-      return User;
+    getAllUsers: async () => {
+      try {
+        const users = await User.find();
+        // console.log(users); // Log the users array
+        return users;
+      } catch (error) {
+        throw new ApolloError('Failed to fetch users', 'DATABASE_ERROR');
+      }
     },
   },
   Mutation: {
