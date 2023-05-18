@@ -1,32 +1,38 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { signup } from '../reducers/authReducer';
-import { View, Text } from 'react-native';
+import { View, Text, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { validate } from '../utils/validation';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import ErrorMessage from '../components/ErrorMessage';
 import { styles } from '../styles/typography'
+import { useMutation } from '@apollo/client';
+import { CREATE_USER } from '../graphql/mutations';
+import { useSelector } from 'react-redux';
 
 const SignupScreen = () => {
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [usernameError, setUsernameError] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const navigation = useNavigation();
-    const customerData = useSelector(state => state.auth.user);
-
-    useEffect(() => {
-        console.log(customerData);
-    }, []);
-
-    const dispatch = useDispatch();
+    const [createUser] = useMutation(CREATE_USER);
+    const loginUser = useSelector(state => state.user);
 
     const handleSignup = () => {
         // Perform signup logic here
+        const usernameValidation = validate(username, { required: true });
         const emailValidation = validate(email, { required: true, email: true });
         const passwordValidation = validate(password, { required: true, minLength: 6 });
+
+        if (!usernameValidation.isValid) {
+            setUsernameError(usernameValidation.errorMessage);
+        } else {
+            setUsernameError('');
+        }
+
         if (!emailValidation.isValid) {
             setEmailError(emailValidation.errorMessage);
         } else {
@@ -39,22 +45,38 @@ const SignupScreen = () => {
             setPasswordError('');
         }
 
-        if (emailValidation.isValid && passwordValidation.isValid) {
-            // if (email === customerData.email && password === customerData.password) {
-                
-            // } else {
-                
-            // }
-            const user = { email, password };
-            dispatch(signup(user));
-            setEmail('');
-            setPassword('');
+        if (usernameValidation.isValid && emailValidation.isValid && passwordValidation.isValid) {
+            try {
+                createUser({ variables: { username, email, password } })
+                    .then((response) => {
+                        // Handle successful signup
+                        if (response.data.signup !== null) {
+                            setUsername('');
+                            setEmail('');
+                            setPassword('');
+                        }
+                        Alert.alert('Signup Successful');
+                    })
+                    .catch((error) => {
+                        // Handle signup error
+                        Alert.alert('Signup Failed', error.message);
+                    });
+
+            } catch (error) {
+                console.log(error);
+            }
         }
     };
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Signup</Text>
+            {usernameError !== '' && <ErrorMessage message={usernameError} />}
+            <Input
+                placeholder="Username"
+                value={username}
+                onChangeText={(text) => setUsername(text)}
+            />
             {emailError !== '' && <ErrorMessage message={emailError} />}
             <Input
                 placeholder="Email"

@@ -1,0 +1,21 @@
+type users {
+    id: ID!
+    username: String!
+    email: String!
+    password: String!
+  }
+
+type Query {
+    getUser(id: ID!): users!
+    getAllUsers: [users!]!
+  }
+
+type Mutation {
+    signup(username: String!, email: String!, password: String!): users!
+    login(email: String!, password: String!): users!
+  }
+
+schema {
+  query: Query
+  mutation: Mutation
+}

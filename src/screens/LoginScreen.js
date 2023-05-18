@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { login } from '../reducers/authReducer';
-import { Text, View } from 'react-native';
+import { Alert, Text, View } from 'react-native';
 import { styles } from '../styles/typography'
 import Input from '../components/Input';
 import Button from '../components/Button';
 import { validate } from '../utils/validation';
 import ErrorMessage from '../components/ErrorMessage';
+import { useMutation } from '@apollo/client';
+import { LOGIN_USER } from '../graphql/mutations';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -15,10 +17,7 @@ const LoginScreen = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const navigation = useNavigation();
-  const customerData = useSelector(state => state.auth.user);
-
-  console.log(customerData);
-
+  const [loginUser] = useMutation(LOGIN_USER);
   const dispatch = useDispatch();
 
   const handleLogin = () => {
@@ -38,8 +37,22 @@ const LoginScreen = () => {
     }
 
     if (emailValidation.isValid && passwordValidation.isValid) {
-      const user = { email, password };
-      dispatch(login(user));
+      try {
+        loginUser({ variables: { email, password } })
+          .then((response) => {
+            // const { token } = response.data.loginUser;
+            // Handle successful login, such as storing the token in AsyncStorage
+            const loginUser = response.data.login;
+            dispatch(login(loginUser));
+            navigation.navigate('Home')
+          })
+          .catch((error) => {
+            // Handle login error
+            Alert.alert(error.message);
+          });
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
