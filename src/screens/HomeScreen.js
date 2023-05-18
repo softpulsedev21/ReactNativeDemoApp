@@ -35,7 +35,7 @@ export default function HomeScreen() {
         <Text style={styles.tableCaption}>All Registered Users</Text>
         <View style={styles.tableRow}>
           <Text style={styles.tableHeader}>No.</Text>
-          <Text style={[styles.tableHeader, { flex: 1 }]}>Name</Text>
+          <Text style={[styles.tableHeader, { flex: 1 }]}>User Name</Text>
           <Text style={[styles.tableHeader, { flex: 1 }]}>Email</Text>
         </View>
         {data?.getAllUsers.map((item, index) => (
